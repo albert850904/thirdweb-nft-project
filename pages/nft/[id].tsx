@@ -8,6 +8,10 @@ import { BigNumber } from 'ethers';
 import toast, { Toaster } from 'react-hot-toast';
 
 import styles from './nftpage.module.scss';
+import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+import { useRouter } from 'next/router';
 
 interface Props {
   collection: Collection;
@@ -18,6 +22,9 @@ function NFTDropPage({ collection }: Props) {
   const [totalSupply, setTotalSupply] = useState<BigNumber>();
   const [loading, setLoading] = useState<boolean>(true);
   const [priceInEth, setPriceInEth] = useState<string>();
+
+  // router
+  const router = useRouter();
 
   // Auth
   const address = useAddress();
@@ -102,6 +109,13 @@ function NFTDropPage({ collection }: Props) {
 
   return (
     <div className="flex flex-col bg-[#FAF0E6] p-10">
+      <div
+        className="absolute top-5 left-5 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-gray-600 p-3 text-white opacity-60 transition-opacity hover:opacity-100"
+        onClick={() => router.back()}
+      >
+        <FontAwesomeIcon icon={faAngleLeft} />
+      </div>
+
       {/* Toaster */}
       <Toaster position="bottom-center" />
 
