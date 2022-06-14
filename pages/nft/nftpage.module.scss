@@ -1,0 +1,47 @@
+.left-tag {
+  width: 0;
+  opacity: 0;
+  animation-name: slideOpen;
+  animation-timing-function: linear;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+
+  &__title {
+    opacity: 0;
+    animation-name: appear;
+    animation-delay: 1000ms;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+  }
+
+  &__desc {
+    opacity: 0;
+    animation-name: appear;
+    animation-timing-function: linear;
+    animation-delay: 1500ms;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+  }
+}
+
+@keyframes slideOpen {
+  from {
+    opacity: 0;
+    width: 0;
+  }
+
+  to {
+    opacity: 1;
+    width: 90%;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
