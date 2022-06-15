@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useAddress, useNFTDrop } from '@thirdweb-dev/react';
+import { useAddress, useNFTDrop, useMetamask } from '@thirdweb-dev/react';
 import { GetServerSideProps } from 'next';
 import { sanityClient, urlFor } from '../../sanity';
 import { Collection } from '../../typings';
@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/router';
+import Loader from '../../components/common/Loader';
 
 interface Props {
   collection: Collection;
@@ -31,9 +32,15 @@ function NFTDropPage({ collection }: Props) {
 
   // NFT
   const nftDrop = useNFTDrop(collection.address); // point to address
+  const connectWithMetaMask = useMetamask();
 
   const mintNft = async () => {
-    if (!nftDrop || !address) return;
+    if (!address) {
+      connectWithMetaMask();
+      return;
+    }
+
+    if (!nftDrop) return;
 
     setLoading(true);
 
@@ -119,12 +126,27 @@ function NFTDropPage({ collection }: Props) {
       {/* Toaster */}
       <Toaster position="bottom-center" />
 
+      {/* Address */}
+      {address && (
+        <div
+          className={
+            styles.wallet +
+            ' absolute top-5 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-[#9FC088] p-3 shadow-lg'
+          }
+        >
+          <p className="text-center text-sm text-white">
+            You're logged in with wallet {address.substring(0, 5)}...
+            {address.substring(address.length - 5)}
+          </p>
+        </div>
+      )}
+
       {/* container */}
       <div className="min-h-[calc(100vh_-_5rem)]  shadow-lg lg:grid lg:grid-cols-10">
         {/* Left side */}
-        <div className="relative lg:col-span-5">
+        <div className="relative min-h-[50vh] md:min-h-[calc(100vh_-_5rem)] lg:col-span-5">
           <div
-            className="h-full rounded-l-lg bg-cover bg-center bg-no-repeat bg-origin-border blur-[2px]"
+            className=" min-h-[50vh] rounded-l-lg bg-cover bg-center bg-no-repeat bg-origin-border blur-[1px] md:min-h-[calc(100vh_-_5rem)] lg:h-full lg:blur-[2px]"
             style={{
               backgroundImage:
                 'url(' + urlFor(collection.mainImage).url() + ')',
@@ -133,7 +155,7 @@ function NFTDropPage({ collection }: Props) {
           <div
             className={
               styles['left-tag'] +
-              ' absolute bottom-0 left-0 flex h-32 flex-col items-center justify-center bg-[#F9EBC8] p-5 py-2'
+              ' absolute bottom-1/2 left-5 flex h-32 flex-col items-center justify-center bg-[#F9EBC8] p-5 py-2 md:left-0 md:bottom-3 lg:bottom-0'
             }
           >
             <div className="space-y-2">
@@ -159,49 +181,32 @@ function NFTDropPage({ collection }: Props) {
 
         {/* Right side */}
         <div className="flex flex-1 flex-col rounded-r-lg bg-gradient-to-br from-[#BE8C63] to-[#DAB88B] bg-cover p-12  lg:col-span-5">
-          {address && (
-            <p className="text-center text-sm text-rose-400">
-              You're logged in with wallet {address.substring(0, 5)}...
-              {address.substring(address.length - 5)}
-            </p>
-          )}
-
           {/* body */}
-          <div className="flex flex-1 flex-col items-center justify-center space-y-6 text-center lg:space-y-0">
+          <div className="flex flex-1 flex-col items-center justify-center space-y-6 text-center lg:space-y-2">
             <div className="mb-2 rounded-xl bg-gradient-to-br from-yellow-400 to-purple-600 p-2">
               <img
-                className="w-44 rounded-xl object-cover lg:h-72 lg:w-72"
+                className="w-96 rounded-xl object-cover lg:h-72 lg:w-72"
                 src={urlFor(collection.previewImage).url()}
                 alt=""
               />
             </div>
-            <h1 className=" text-2xl font-bold lg:text-3xl lg:font-extrabold">
+            <h1 className="text-2xl font-bold lg:text-3xl lg:font-extrabold">
               {collection.title}
             </h1>
-            {loading ? (
-              <p className="test-xl animate-pulse text-blue-400">Loading...</p>
-            ) : (
+            {!loading && (
               <p className="pt-2 text-xl text-[#603601]">
                 {claimedSupply} / {totalSupply?.toString()} NFT's claimed
               </p>
             )}
 
-            {/* {loading && (
-              <img
-                className="h-80 w-80 object-contain"
-                src="https://cdn.hackernoon.com/images/0*4Gzjgh9Y7Gu8KEtZ.gif"
-                alt=""
-              />
-            )} */}
+            {loading && <Loader />}
           </div>
 
           {/* mint button */}
           <button
-            className="mt-10 h-16 w-full rounded-full bg-red-400 text-white disabled:bg-gray-300"
+            className="mt-10 h-16 w-full rounded-full bg-[#7E370C] text-white disabled:bg-gray-300"
             onClick={mintNft}
-            disabled={
-              loading || claimedSupply === totalSupply?.toNumber() || !address
-            }
+            disabled={loading || claimedSupply === totalSupply?.toNumber()}
           >
             {loading ? (
               <>Loading</>
